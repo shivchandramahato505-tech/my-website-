@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hi Kishan | Professional Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4CAF50;
+      --secondary: #1A365D;
+      --bg: #f4f7f6;
+      --white: #ffffff;
+      --text: #333;
+    }
+
+    body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; transition: 0.3s; overflow-x: hidden; }
+
+    /* --- BACKGROUND OVERLAY --- */
+    .overlay {
+      position: fixed; top: 70px; left: 0; width: 100%; height: calc(100% - 70px);
+      background: rgba(0,0,0,0.5); z-index: 2000;
+      opacity: 0; visibility: hidden; transition: 0.3s ease;
+    }
+    .overlay.show { opacity: 1; visibility: visible; }
+
+    /* --- TOP MENU BAR --- */
+    .top-bar {
+      position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+      background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+      display: flex; align-items: center; padding: 0 20px;
+      z-index: 3000;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+      box-sizing: border-box;
+    }
+
+    /* --- ANIMATED HAMBURGER MENU --- */
+    .menu-btn {
+      cursor: pointer; width: 30px; height: 22px;
+      position: relative; display: flex; flex-direction: column; justify-content: space-between;
+      z-index: 3100;
+    }
+    .menu-btn div {
+      width: 100%; height: 3px; background-color: var(--secondary);
+      border-radius: 5px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform-origin: left center;
+    }
+    .menu-btn.is-active .line1 { transform: rotate(45deg); background-color: var(--primary); }
+    .menu-btn.is-active .line2 { opacity: 0; transform: translateX(-10px); }
+    .menu-btn.is-active .line3 { transform: rotate(-45deg); background-color: var(--primary); }
+
+    /* --- SIDEBAR --- */
+    .sidebar {
+      position: fixed; left: -320px; top: 70px; width: 300px; height: calc(100% - 70px);
+      background: var(--white); z-index: 2500;
+      box-shadow: 5px 0 30px rgba(0,0,0,0.1);
+      transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex; flex-direction: column; overflow-y: auto;
+    }
+    .sidebar.active { left: 0; }
+
+    .sidebar-header {
+      background: var(--primary); padding: 30px 20px; color: white;
+      text-align: center; position: relative;
+    }
+    #profile-pic-display {
+      width: 80px; height: 80px; border-radius: 50%;
+      border: 3px solid white; object-fit: cover; margin-bottom: 10px;
+    }
+
+    .nav-list { padding: 15px; flex-grow: 1; }
+    .nav-item {
+      display: flex; align-items: center; gap: 15px;
+      padding: 14px 15px; border-radius: 12px; cursor: pointer;
+      color: var(--text); font-weight: 500; transition: 0.2s;
+      text-decoration: none; margin-bottom: 5px;
+    }
+    .nav-item:hover { background: #f0fdf4; color: var(--primary); transform: translateX(5px); }
+    .nav-item i { color: var(--primary); width: 25px; text-align: center; font-size: 18px; }
+
+    /* --- EDIT PROFILE MODAL --- */
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); z-index: 4000;
+      display: none; align-items: center; justify-content: center;
+    }
+    .modal-content {
+      background: white; padding: 30px; width: 90%; max-width: 400px;
+      border-radius: 20px; max-height: 85vh; overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    .modal-content input {
+      width: 100%; padding: 12px; margin: 8px 0 15px;
+      border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; outline: none;
+    }
+    .modal-content input:focus { border-color: var(--primary); }
+
+    /* --- DASHBOARD CONTENT --- */
+    .hero { margin-top: 110px; text-align: center; }
+    .hero h1 { font-size: 28px; color: var(--secondary); margin-bottom: 20px; }
+
+    .main-grid {
+      display: flex; flex-direction: column; align-items: center; gap: 25px; padding: 20px;
+      padding-bottom: 50px;
+    }
+
+    .feature-card {
+      background: var(--white); width: 100%; max-width: 340px;
+      border-radius: 25px; overflow: hidden;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      transition: 0.3s; cursor: pointer; position: relative;
+    }
+    .feature-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+    .feature-card img { width: 100%; height: 180px; object-fit: cover; }
+    .card-info { padding: 20px; text-align: left; }
+    .card-info h2 { margin: 0; font-size: 22px; color: var(--secondary); }
+    .go-icon {
+      position: absolute; right: 20px; bottom: 25px;
+      background: var(--primary); color: white;
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: 0.3s;
+    }
+    .feature-card:hover .go-icon { transform: scale(1.1); }
+  </style>
+</head>
+<body>
+
+  <div class="overlay" id="overlay" onclick="handleMenu()"></div>
+
+  <div class="top-bar">
+    <div class="menu-btn" id="menuBtn" onclick="handleMenu()">
+      <div class="line1"></div>
+      <div class="line2"></div>
+      <div class="line3"></div>
+    </div>
+    <div style="margin-left: 20px; font-weight: 800; color: #4CAF50; font-size: 20px; letter-spacing: 1px;">HI KISHAN</div>
+  </div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="https://via.placeholder.com/80" id="profile-pic-display" alt="User">
+      <h3 id="display-name" class="translatable" data-en="Welcome, Farmer" data-ne="स्वागत छ, किसान" style="margin: 10px 0;">Welcome, Farmer</h3>
+      <button onclick="openModal()" style="background:rgba(255,255,255,0.2); border:1px solid white; color:white; border-radius:8px; padding:8px 15px; cursor:pointer; font-size:12px; transition: 0.3s;">Edit Full Profile</button>
+    </div>
+
+    <div class="nav-list">
+      <div class="nav-item" onclick="changeLanguage()">
+        <i class="fas fa-language"></i> <span id="lang-label">Switch to Nepali</span>
+      </div>
+      
+      <div class="nav-item" onclick="installApp()">
+        <i class="fas fa-external-link-alt"></i> <span class="translatable" data-en="Add Shortcut (App Icon)" data-ne="सर्टकट थप्नुहोस्">Add Shortcut Key</span>
+      </div>
+
+      <div class="nav-item" onclick="shareApp()">
+        <i class="fas fa-share-nodes"></i> <span class="translatable" data-en="Invite Friends" data-ne="साथीहरूलाई निम्तो">Invite Friends</span>
+      </div>
+
+      <a href="tel:9840109517" class="nav-item">
+        <i class="fas fa-phone-alt"></i> <span>9840109517</span>
+      </a>
+      <a href="mailto:shivchandramahato505@gmail.com" class="nav-item">
+        <i class="fas fa-envelope"></i> <span>Email Support</span>
+      </a>
+
+      <div class="nav-item" style="margin-top:20px; color:red;" onclick="location.href='index.html'">
+        <i class="fas fa-power-off"></i> <span>Logout</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="profileModal">
+    <div class="modal-content">
+      <h3 style="margin-top:0; color: var(--secondary);">Edit Profile</h3>
+      <label style="font-size: 13px; font-weight: bold; color: #666;">Profile Photo</label>
+      <input type="file" id="input-photo" accept="image/*">
+      
+      <label style="font-size: 13px; font-weight: bold; color: #666;">Full Name</label>
+      <input type="text" id="input-name" placeholder="John Doe">
+      
+      <label style="font-size: 13px; font-weight: bold; color: #666;">Phone Number</label>
+      <input type="text" id="input-phone" placeholder="98XXXXXXXX">
+      
+      <label style="font-size: 13px; font-weight: bold; color: #666;">Address</label>
+      <input type="text" id="input-address" placeholder="City, District">
+      
+      <label style="font-size: 13px; font-weight: bold; color: #666;">Citizenship Number</label>
+      <input type="text" id="input-id" placeholder="XX-XX-XX">
+      
+      <button onclick="saveProfile()" style="width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:12px; cursor:pointer; font-weight:bold; font-size: 16px; margin-top: 10px;">Save Details</button>
+      <button onclick="closeModal()" style="width:100%; margin-top:10px; padding:14px; background:#f1f5f9; border:none; color:#666; font-weight:bold; border-radius:12px; cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1 class="translatable" data-en="Choose Your Panel" data-ne="आफ्नो प्यानल रोज्नुहोस्">Choose Your Panel</h1>
+  </div>
+
+  <div class="main-grid">
+   <div class="feature-card" onclick="location.href='shop-pannel/shop.html'">
+  <img src="shop-pannel/shop.jpeg" alt="Shop">
+  <div class="card-info">
+    <h2 class="translatable" data-en="Shopkeeper" data-ne="पसल मालिक">Shopkeeper</h2>
+    <p style="color:grey; font-size:14px; margin-top: 5px;">Inventory & Customer Management</p>
+  </div>
+  <div class="go-icon"><i class="fas fa-arrow-right"></i></div>
+</div>
+    <div class="feature-card" onclick="location.href='farmer-pannel/farmer.html'">
+  <img src="farmer-pannel/farmer.jpeg" alt="Farmer">
+  <div class="card-info">
+    <h2 class="translatable" data-en="Farmer" data-ne="किसान">Farmer</h2>
+    <p style="color:grey; font-size:14px; margin-top: 5px;">Crop Tracking & Profit Reports</p>
+  </div>
+  <div class="go-icon"><i class="fas fa-arrow-right"></i></div>
+</div>
+
+    <div class="feature-card" onclick="location.href='student-pannel/student.html'">
+  <img src="student-pannel/student.jpeg" alt="Student">
+  <div class="card-info">
+    <h2 class="translatable" data-en="Student" data-ne="विद्यार्थी">Student</h2>
+    <p style="color:grey; font-size:14px; margin-top: 5px;">Learning & Agriculture Research</p>
+  </div>
+  <div class="go-icon"><i class="fas fa-arrow-right"></i></div>
+</div>
+
+<div class="feature-card" onclick="location.href='teacher-pannel/teacher.html'">
+  <img src="teacher-pannel/teacher.jpeg" alt="Teacher">
+  <div class="card-info">
+    <h2 class="translatable" data-en="Teacher" data-ne="शिक्षक">Teacher</h2>
+    <p style="color:grey; font-size:14px; margin-top: 5px;">Manage Attendance & Student Progress</p>
+  </div>
+  <div class="go-icon"><i class="fas fa-arrow-right"></i></div>
+</div>
+
+  <script>
+    let currentLang = 'en';
+
+    function handleMenu() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('overlay');
+      const menuBtn = document.getElementById('menuBtn');
+
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('show');
+      menuBtn.classList.toggle('is-active');
+    }
+
+    function openModal() { document.getElementById('profileModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('profileModal').style.display = 'none'; }
+
+    function saveProfile() {
+      const name = document.getElementById('input-name').value;
+      const photoInput = document.getElementById('input-photo');
+      
+      if(name) {
+        document.getElementById('display-name').innerText = name;
+        localStorage.setItem('hk_farmer_name', name);
+      }
+
+      if (photoInput.files && photoInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('profile-pic-display').src = e.target.result;
+          localStorage.setItem('hk_profile_pic', e.target.result);
+        };
+        reader.readAsDataURL(photoInput.files[0]);
+      }
+      
+      closeModal();
+    }
+
+    function installApp() {
+      alert("Shortcut Guide:\n1. Tap 'Share' or the 3-dots in your browser.\n2. Click 'Add to Home Screen'.");
+    }
+
+    function changeLanguage() {
+      const elements = document.querySelectorAll('.translatable');
+      const label = document.getElementById('lang-label');
+      if(currentLang === 'en') {
+        elements.forEach(el => el.innerText = el.getAttribute('data-ne'));
+        label.innerText = "Switch to English";
+        currentLang = 'ne';
+      } else {
+        elements.forEach(el => el.innerText = el.getAttribute('data-en'));
+        label.innerText = "Switch to Nepali";
+        currentLang = 'en';
+      }
+    }
+
+    async function shareApp() {
+      if (navigator.share) {
+        await navigator.share({ title: 'Hi Kishan', url: window.location.href });
+      } else {
+        window.open('https://wa.me/?text=Check out Hi Kishan: ' + window.location.href);
+      }
+    }
+
+    window.onload = () => {
+      const savedName = localStorage.getItem('hk_farmer_name');
+      const savedPic = localStorage.getItem('hk_profile_pic');
+      if(savedName) document.getElementById('display-name').innerText = savedName;
+      if(savedPic) document.getElementById('profile-pic-display').src = savedPic;
+    };
+  </script>
+</body>
+</html>

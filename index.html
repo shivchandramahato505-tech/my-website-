@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hi Kishan | Shop Management Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 flex items-center justify-center min-h-screen p-4">
+
+    <div class="login-card bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-gray-100 relative overflow-hidden">
+        
+        <div class="text-center mb-8">
+            <img src="logo.jpeg" alt="Hi Kishan Logo" class="w-32 mx-auto mb-2">
+            <h1 class="logo-text text-3xl font-extrabold tracking-tight">Hi Kishan</h1>
+            <p class="tagline text-sm font-bold uppercase tracking-widest">Eco-Friendly Farming</p>
+        </div>
+
+        <div class="space-y-3 mb-6">
+            <button class="social-btn w-full flex items-center justify-center gap-3 border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold text-gray-700">
+                <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5 h-5" alt="Google Logo">
+                Sign in with Google
+            </button>
+            
+            <button class="social-btn fb-btn w-full flex items-center justify-center gap-3 text-white py-3 rounded-xl hover:opacity-90 transition-all duration-200 font-semibold shadow-md">
+                <i class="fab fa-facebook-f"></i>
+                Continue with Facebook
+            </button>
+
+            <button class="social-btn w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 font-semibold">
+                <i class="fas fa-phone-alt kishan-green-text"></i>
+                Sign in with Phone
+            </button>
+        </div>
+
+        <div class="relative flex items-center py-4">
+            <div class="flex-grow border-t border-gray-200"></div>
+            <span class="flex-shrink mx-4 text-gray-400 text-xs font-bold uppercase tracking-widest">Or email login</span>
+            <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <input type="email" id="email" placeholder="Email Address" required class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-green-500 focus:bg-white outline-none transition-all">
+            </div>
+            <div class="relative">
+                <input type="password" id="password" placeholder="Password" required class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-green-500 focus:bg-white outline-none transition-all">
+                <button type="button" id="togglePassword" class="absolute right-4 top-4 text-gray-400 hover:text-green-600 transition-colors">
+                    <i class="far fa-eye" id="eyeIcon"></i>
+                </button>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <label class="flex items-center text-sm text-gray-500 cursor-pointer">
+                    <input type="checkbox" class="mr-2 accent-green-600"> Remember me
+                </label>
+                <a href="#" class="text-sm font-semibold kishan-green-text hover:underline">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="submit-btn w-full text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:opacity-90 active:scale-[0.98] transition-all mt-2">
+                Sign In
+            </button>
+        </form>
+
+        <p class="text-center mt-8 text-gray-500 text-sm">
+            New to the ecosystem? 
+            <a href="#" class="kishan-green-text font-bold hover:underline">Create Account</a>
+        </p>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
