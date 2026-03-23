@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hi Kishan | Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-md bg-white rounded-[2rem] shadow-2xl border border-gray-100 overflow-hidden">
+    
+    <div class="p-8">
+      <!-- Logo -->
+      <div class="text-center mb-8">
+        <img src="logo.jpeg" alt="Hi Kishan Logo" class="w-28 mx-auto mb-3 rounded-xl">
+        <h1 class="text-3xl font-extrabold text-green-600">Hi Kishan</h1>
+        <p class="text-sm text-gray-500 font-semibold tracking-wide">Eco-Friendly Farming</p>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div class="flex bg-gray-100 rounded-2xl p-1 mb-6">
+        <button id="loginTab" class="w-1/2 py-3 rounded-2xl font-bold bg-green-600 text-white transition">Login</button>
+        <button id="signupTab" class="w-1/2 py-3 rounded-2xl font-bold text-gray-600 transition">Create Account</button>
+      </div>
+
+      <!-- LOGIN SECTION -->
+      <div id="loginSection">
+        <div class="space-y-3 mb-6">
+          <button onclick="googleLogin()" class="w-full flex items-center justify-center gap-3 border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition font-semibold text-gray-700">
+            <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5 h-5" alt="Google">
+            Sign in with Google
+          </button>
+
+          <button onclick="phoneLogin()" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-3 rounded-xl hover:bg-gray-50 transition font-semibold">
+            <i class="fas fa-phone-alt text-green-600"></i>
+            Sign in with Phone
+          </button>
+        </div>
+
+        <div class="relative flex items-center py-4">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-4 text-gray-400 text-xs font-bold uppercase tracking-widest">Or email login</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <form id="loginForm" class="space-y-4">
+          <input type="email" id="loginEmail" placeholder="Email Address" required
+            class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-green-500 focus:bg-white outline-none transition-all">
+
+          <div class="relative">
+            <input type="password" id="loginPassword" placeholder="Password" required
+              class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-green-500 focus:bg-white outline-none transition-all">
+            <button type="button" onclick="togglePassword('loginPassword','loginEye')" class="absolute right-4 top-4 text-gray-400 hover:text-green-600">
+              <i class="far fa-eye" id="loginEye"></i>
+            </button>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <label class="flex items-center text-sm text-gray-500 cursor-pointer">
+              <input type="checkbox" class="mr-2 accent-green-600"> Remember me
+            </label>
+            <a href="#" class="text-sm font-semibold text-green-600 hover:underline">Forgot Password?</a>
+          </div>
+
+          <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-green-700 active:scale-[0.98] transition-all">
+            Sign In
+          </button>
+        </form>
+      </div>
+
+      <!-- SIGNUP SECTION -->
+      <div id="signupSection" class="hidden">
+        <div class="space-y-3 mb-6">
+          <button onclick="googleSignup()" class="w-full flex items-center justify-center gap-3 border border-gray-300 py-3 rounded-xl hover:bg-gray-50 transition font-semibold text-gray-700">
+            <img src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg" class="w-5 h-5" alt="Google">
+            Continue with Google
+          </button>
+
+          <button onclick="phoneSignup()" class="w-full flex items-center justify-center gap-3 bg-white border border-gray-300 text-gray-700 py-3 rounded-xl hover:bg-gray-50 transition font-semibold">
+            <i class="fas fa-phone-alt text-green-600"></i>
+            Continue with Phone
+          </button>
+        </div>
+
+        <div class="relative flex items-center py-4">
+          <div class="flex-grow border-t border-gray-200"></div>
+          <span class="mx-4 text-gray-400 text-xs font-bold uppercase tracking-widest">Or create with email</span>
+          <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <form id="signupForm" class="space-y-4">
+          <input type="text" id="signupName" placeholder="Full Name" required
+            class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-green-500 focus:bg-white outline-none transition-all">
+
+          <input type="email" id="signupEmail" placeholder="Email Address" required
+            class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-green-500 focus:bg-white outline-none transition-all">
+
+          <input type="tel" id="signupPhone" placeholder="Phone Number" required
+            class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-green-500 focus:bg-white outline-none transition-all">
+
+          <div class="relative">
+            <input type="password" id="signupPassword" placeholder="Create Password" required
+              class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-green-500 focus:bg-white outline-none transition-all">
+            <button type="button" onclick="togglePassword('signupPassword','signupEye')" class="absolute right-4 top-4 text-gray-400 hover:text-green-600">
+              <i class="far fa-eye" id="signupEye"></i>
+            </button>
+          </div>
+
+          <div class="relative">
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" required
+              class="w-full px-5 py-3.5 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-green-500 focus:bg-white outline-none transition-all">
+            <button type="button" onclick="togglePassword('confirmPassword','confirmEye')" class="absolute right-4 top-4 text-gray-400 hover:text-green-600">
+              <i class="far fa-eye" id="confirmEye"></i>
+            </button>
+          </div>
+
+          <label class="flex items-start text-sm text-gray-500 cursor-pointer">
+            <input type="checkbox" id="agreeTerms" class="mr-2 mt-1 accent-green-600" required>
+            <span>I agree to the Terms & Conditions</span>
+          </label>
+
+          <button type="submit" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:bg-green-700 active:scale-[0.98] transition-all">
+            Create Account
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const loginTab = document.getElementById("loginTab");
+    const signupTab = document.getElementById("signupTab");
+    const loginSection = document.getElementById("loginSection");
+    const signupSection = document.getElementById("signupSection");
+
+    loginTab.addEventListener("click", () => {
+      loginSection.classList.remove("hidden");
+      signupSection.classList.add("hidden");
+      loginTab.classList.add("bg-green-600", "text-white");
+      loginTab.classList.remove("text-gray-600");
+      signupTab.classList.remove("bg-green-600", "text-white");
+      signupTab.classList.add("text-gray-600");
+    });
+
+    signupTab.addEventListener("click", () => {
+      signupSection.classList.remove("hidden");
+      loginSection.classList.add("hidden");
+      signupTab.classList.add("bg-green-600", "text-white");
+      signupTab.classList.remove("text-gray-600");
+      loginTab.classList.remove("bg-green-600", "text-white");
+      loginTab.classList.add("text-gray-600");
+    });
+
+    function togglePassword(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+
+      if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+
+      if (email && password) {
+        localStorage.setItem("hk_user_email", email);
+        alert("Login successful");
+        window.location.href = "dashboard.html";
+      }
+    });
+
+    document.getElementById("signupForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("signupName").value;
+      const email = document.getElementById("signupEmail").value;
+      const phone = document.getElementById("signupPhone").value;
+      const password = document.getElementById("signupPassword").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const agreeTerms = document.getElementById("agreeTerms").checked;
+
+      if (!agreeTerms) {
+        alert("Please agree to Terms & Conditions");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match");
+        return;
+      }
+
+      localStorage.setItem("hk_user_name", name);
+      localStorage.setItem("hk_user_email", email);
+      localStorage.setItem("hk_user_phone", phone);
+      localStorage.setItem("hk_user_password", password);
+
+      alert("Account created successfully");
+      window.location.href = "dashboard.html";
+    });
+
+    function googleLogin() {
+      alert("Google login will work after Firebase is connected.");
+    }
+
+    function phoneLogin() {
+      const phone = prompt("Enter your phone number:");
+      if (phone) {
+        localStorage.setItem("hk_user_phone", phone);
+        alert("Phone login demo successful");
+        window.location.href = "dashboard.html";
+      }
+    }
+
+    function googleSignup() {
+      alert("Google signup will work after Firebase is connected.");
+    }
+
+    function phoneSignup() {
+      const phone = prompt("Enter your phone number:");
+      if (phone) {
+        localStorage.setItem("hk_user_phone", phone);
+        alert("Phone signup demo successful");
+        window.location.href = "dashboard.html";
+      }
+    }
+  </script>
+
+</body>
+</html>

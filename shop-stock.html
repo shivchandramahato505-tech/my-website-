@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Kishan Pro | Stock & Customers</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --primary: #4CAF50; 
+            --secondary: #1a365d;
+            --sell-color: #E91E63; 
+            --cust-color: #2196F3; 
+            --bg: #f4f7f6; 
+            --white: #ffffff;
+        }
+        
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; overflow-x: hidden; }
+
+        /* --- PROFESSIONAL TOP BAR --- */
+        .top-bar {
+            position: fixed; top: 0; width: 100%; height: 65px;
+            background: var(--white); display: flex; align-items: center; padding: 0 20px;
+            z-index: 3000; box-shadow: 0 2px 15px rgba(0,0,0,0.08); box-sizing: border-box;
+        }
+
+        /* --- ANIMATED MENU BUTTON --- */
+        .menu-btn { cursor: pointer; width: 30px; height: 22px; display: flex; flex-direction: column; justify-content: space-between; z-index: 3100; }
+        .menu-btn div { width: 100%; height: 3.5px; background: var(--secondary); border-radius: 5px; transition: 0.3s; transform-origin: left center; }
+        .menu-btn.is-active .line1 { transform: rotate(45deg); background: var(--primary); }
+        .menu-btn.is-active .line2 { opacity: 0; }
+        .menu-btn.is-active .line3 { transform: rotate(-45deg); background: var(--primary); }
+
+        /* --- SIDEBAR & OVERLAY --- */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; opacity: 0; transition: 0.3s; }
+        .overlay.show { display: block; opacity: 1; }
+
+        .sidebar { 
+            position: fixed; left: -320px; top: 0; width: 300px; height: 100%; 
+            background: var(--white); z-index: 2500; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; flex-direction: column; overflow-y: auto;
+        }
+        .sidebar.active { left: 0; }
+        
+        .sidebar-header { background: var(--primary); padding: 40px 20px 20px; color: white; text-align: center; }
+        #profile-pic-sidebar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; object-fit: cover; margin-bottom: 10px; }
+
+        .nav-list { padding: 15px; }
+        .nav-item { display: flex; align-items: center; gap: 15px; padding: 14px 20px; border-radius: 12px; color: #333; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 5px; }
+        .nav-item:hover { background: #f0fdf4; color: var(--primary); }
+        .nav-item i { color: var(--primary); width: 20px; text-align: center; }
+
+        /* --- MODAL --- */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 4000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 25px; width: 90%; max-width: 400px; border-radius: 20px; }
+        .modal-content input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+
+        /* --- DASHBOARD ELEMENTS --- */
+        .container { display: flex; flex-direction: column; gap: 15px; align-items: center; padding: 85px 15px 15px; }
+        .card { background: white; width: 100%; max-width: 500px; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; }
+        
+        .nav-tabs { display: flex; width: 100%; max-width: 500px; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .nav-btn { flex: 1; padding: 14px; border: none; background: #f9f9f9; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 14px; }
+        .active-tab { background: var(--primary); color: white; }
+
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; }
+        
+        .tab-group { display: flex; background: #eee; border-radius: 12px; padding: 5px; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; background: transparent; }
+        .tab-active-buy { background: white; color: var(--primary); }
+        .tab-active-sell { background: white; color: var(--sell-color); }
+
+        .stock-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #f2f2f2; align-items: center; }
+        .qty-badge { padding: 4px 12px; border-radius: 20px; font-weight: bold; background: #e8f5e9; color: #2e7d32; }
+        
+        #reader { width: 100%; border-radius: 10px; overflow: hidden; display: none; margin-bottom: 15px; border: 2px solid var(--primary); }
+        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; transition: 0.3s; }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="handleMenu()"></div>
+
+<div class="top-bar">
+    <div class="menu-btn" id="menuBtn" onclick="handleMenu()">
+        <div class="line1"></div><div class="line2"></div><div class="line3"></div>
+    </div>
+    <div style="margin-left: 15px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px;">HI KISHAN</div>
+</div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img src="https://via.placeholder.com/80" id="profile-pic-sidebar">
+        <h3 id="display-name" class="trans" data-en="Welcome, Shopkeeper" data-ne="स्वागत छ, पसले">Welcome, Shopkeeper</h3>
+        <button onclick="openModal()" style="background:rgba(255,255,255,0.2); border:1px solid white; color:white; border-radius:8px; padding:5px 12px; cursor:pointer;">Edit Profile</button>
+    </div>
+    <div class="nav-list">
+        <div class="nav-item" onclick="changeLanguage()">
+            <i class="fas fa-language"></i> <span id="lang-label">Switch to Nepali</span>
+        </div>
+        <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> <span class="trans" data-en="Dashboard" data-ne="ड्यासबोर्ड">Dashboard</span></a>
+        <a href="tel:9840109517" class="nav-item"><i class="fas fa-phone-alt"></i> <span>9840109517</span></a>
+        <a href="mailto:shivchandramahato505@gmail.com" class="nav-item"><i class="fas fa-envelope"></i> <span class="trans" data-en="Email Support" data-ne="इमेल समर्थन">Email Support</span></a>
+        <div class="nav-item" style="color:red; margin-top:30px;" onclick="location.href='index.html'"><i class="fas fa-power-off"></i> <span class="trans" data-en="Logout" data-ne="लग आउट">Logout</span></div>
+    </div>
+</div>
+
+<div class="modal" id="profileModal">
+    <div class="modal-content">
+        <h3 class="trans" data-en="Edit Profile" data-ne="प्रोफाइल सम्पादन">Edit Profile</h3>
+        <input type="text" id="input-name" placeholder="Full Name">
+        <button class="btn-main" style="background:var(--primary);" onclick="saveProfile()">Save Details</button>
+        <button onclick="closeModal()" style="width:100%; background:none; border:none; color:grey; margin-top:10px; cursor:pointer;">Cancel</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="nav-tabs">
+        <button id="btnStock" class="nav-btn active-tab trans" data-en="📦 STOCK" data-ne="📦 स्टक" onclick="showSection('stock')">📦 STOCK</button>
+        <button id="btnCust" class="nav-btn trans" data-en="👥 CUSTOMERS" data-ne="👥 ग्राहकहरू" onclick="showSection('cust')">👥 CUSTOMERS</button>
+    </div>
+
+    <div id="section-stock" style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+        <div class="card">
+            <button onclick="startScanner()" style="width:100%; background:var(--secondary); color:white; border:none; padding:12px; border-radius:10px; font-weight:bold; margin-bottom:15px;"><i class="fas fa-camera"></i> Scan Barcode</button>
+            <div id="reader"></div>
+
+            <div class="tab-group">
+                <button id="buyTab" class="tab-btn tab-active-buy trans" data-en="STOCK IN" data-ne="स्टक भित्र" onclick="setMode('buy')">STOCK IN</button>
+                <button id="sellTab" class="tab-btn trans" data-en="SALE OUT" data-ne="बिक्री बाहिर" onclick="setMode('sell')">SALE OUT</button>
+            </div>
+
+            <input type="text" id="itemName" placeholder="Item Name" list="itemNames">
+            <datalist id="itemNames"></datalist>
+            <input type="number" id="itemQty" placeholder="Quantity">
+            <input type="text" id="barcode" placeholder="Barcode (Optional)">
+            
+            <div id="priceRow" style="display:flex; gap:10px;">
+                <input type="number" id="pBuyPrice" placeholder="Buy Price">
+                <input type="number" id="pSellPrice" placeholder="Sell Price">
+            </div>
+
+            <button id="actionBtn" class="btn-main trans" data-en="Confirm Transaction" data-ne="कारोबार पुष्टि गर्नुहोस्" style="background:var(--primary);" onclick="updateStock()">Confirm Transaction</button>
+        </div>
+
+        <div class="card">
+            <h3 class="trans" data-en="Inventory List" data-ne="सूची सूची" style="margin-top:0; color:var(--secondary);">Inventory List</h3>
+            <div id="stockList"></div>
+        </div>
+    </div>
+
+    <div id="section-cust" style="width: 100%; display: none; flex-direction: column; align-items: center; gap: 15px;">
+        <div class="card" style="border-top: 5px solid var(--cust-color);">
+            <h3 class="trans" data-en="New Customer (Udhaar)" data-ne="नयाँ ग्राहक (उधारो)" style="margin-top:0">New Customer (Udhaar)</h3>
+            <input type="text" id="cName" placeholder="Customer Name">
+            <input type="number" id="cPhone" placeholder="Mobile Number">
+            <input type="number" id="cBalance" placeholder="Initial Balance">
+            <button class="btn-main trans" data-en="Save Customer" data-ne="ग्राहक बचत गर्नुहोस्" style="background:var(--cust-color);" onclick="addCustomer()">Save Customer</button>
+        </div>
+
+        <div class="card">
+            <input type="text" id="cSearch" placeholder="🔍 Search Name..." onkeyup="renderCustomers()">
+            <div id="customerList"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let stock = JSON.parse(localStorage.getItem('kishan_stock') || '[]');
+    let customers = JSON.parse(localStorage.getItem('kishan_customers') || '[]');
+    let mode = 'buy';
+    let currentLang = localStorage.getItem('hk_lang') || 'en';
+
+    // --- MENU LOGIC ---
+    function handleMenu() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('show');
+        document.getElementById('menuBtn').classList.toggle('is-active');
+    }
+
+    function openModal() { document.getElementById('profileModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('profileModal').style.display = 'none'; }
+
+    function saveProfile() {
+        const n = document.getElementById('input-name').value;
+        if(n) {
+            document.getElementById('display-name').innerText = n;
+            localStorage.setItem('hk_shop_name', n);
+        }
+        closeModal();
+    }
+
+    // --- PERSISTENT TRANSLATOR ---
+    function changeLanguage() {
+        currentLang = (currentLang === 'en') ? 'ne' : 'en';
+        localStorage.setItem('hk_lang', currentLang);
+        applyLanguage();
+    }
+
+    function applyLanguage() {
+        const els = document.querySelectorAll('.trans');
+        els.forEach(el => {
+            el.innerText = el.getAttribute('data-' + currentLang);
+        });
+        document.getElementById('lang-label').innerText = (currentLang === 'en') ? "Switch to Nepali" : "English मा जानुहोस्";
+    }
+
+    // --- STOCK & CUSTOMER LOGIC ---
+    function showSection(sect) {
+        document.getElementById('section-stock').style.display = sect === 'stock' ? 'flex' : 'none';
+        document.getElementById('section-cust').style.display = sect === 'cust' ? 'flex' : 'none';
+        document.getElementById('btnStock').classList.toggle('active-tab', sect === 'stock');
+        document.getElementById('btnCust').classList.toggle('active-tab', sect === 'cust');
+    }
+
+    function setMode(m) {
+        mode = m;
+        document.getElementById('buyTab').className = m === 'buy' ? 'tab-btn tab-active-buy trans' : 'tab-btn trans';
+        document.getElementById('sellTab').className = m === 'sell' ? 'tab-btn tab-active-sell trans' : 'tab-btn trans';
+        document.getElementById('actionBtn').style.background = m === 'buy' ? '#4CAF50' : '#E91E63';
+        document.getElementById('priceRow').style.display = m === 'buy' ? 'flex' : 'none';
+    }
+
+    function updateStock() {
+        const name = document.getElementById('itemName').value.trim().toUpperCase();
+        const qty = parseFloat(document.getElementById('itemQty').value);
+        if(!name || isNaN(qty)) return alert("Fill Name and Qty");
+
+        let idx = stock.findIndex(i => i.name === name);
+        if(mode === 'buy') {
+            if(idx > -1) stock[idx].qty += qty;
+            else stock.push({ name, qty, barcode: document.getElementById('barcode').value });
+        } else {
+            if(idx > -1 && stock[idx].qty >= qty) stock[idx].qty -= qty;
+            else return alert("Low Stock!");
+        }
+        localStorage.setItem('kishan_stock', JSON.stringify(stock));
+        renderStock();
+    }
+
+    function renderStock() {
+        document.getElementById('stockList').innerHTML = stock.map(i => `
+            <div class="stock-item">
+                <div><b>${i.name}</b></div>
+                <div class="qty-badge">${i.qty}</div>
+            </div>`).join('');
+    }
+
+    function addCustomer() {
+        const name = document.getElementById('cName').value.toUpperCase();
+        if(!name) return;
+        customers.push({ name, phone: document.getElementById('cPhone').value, balance: document.getElementById('cBalance').value });
+        localStorage.setItem('kishan_customers', JSON.stringify(customers));
+        renderCustomers();
+    }
+
+    function renderCustomers() {
+        const q = document.getElementById('cSearch').value.toUpperCase();
+        document.getElementById('customerList').innerHTML = customers.filter(c => c.name.includes(q)).map(c => `
+            <div class="stock-item">
+                <div><b>${c.name}</b></div>
+                <div style="color:red; font-weight:bold">₹${c.balance}</div>
+            </div>`).join('');
+    }
+
+    window.onload = () => {
+        renderStock();
+        applyLanguage();
+        const savedName = localStorage.getItem('hk_shop_name');
+        if(savedName) document.getElementById('display-name').innerText = savedName;
+    };
+</script>
+
+</body>
+</html>

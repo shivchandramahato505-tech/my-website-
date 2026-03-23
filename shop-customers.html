@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hi Kishan | Customer Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #3bc93b; --secondary: #1A365D; --bg: #f4f7f6; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; overflow-x: hidden; }
+
+        /* --- MENU & TOP BAR --- */
+        .top-bar { position: fixed; top: 0; width: 100%; height: 65px; background: var(--white); display: flex; align-items: center; padding: 0 20px; z-index: 3000; box-shadow: 0 2px 15px rgba(0,0,0,0.08); box-sizing: border-box; }
+        .menu-btn { cursor: pointer; width: 30px; height: 22px; display: flex; flex-direction: column; justify-content: space-between; z-index: 3100; }
+        .menu-btn div { width: 100%; height: 3.5px; background: var(--secondary); border-radius: 5px; transition: 0.3s; transform-origin: left center; }
+        .menu-btn.is-active .line1 { transform: rotate(45deg); background: var(--primary); }
+        .menu-btn.is-active .line2 { opacity: 0; }
+        .menu-btn.is-active .line3 { transform: rotate(-45deg); background: var(--primary); }
+
+        /* --- SIDEBAR --- */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; opacity: 0; transition: 0.3s; }
+        .overlay.show { display: block; opacity: 1; }
+        .sidebar { position: fixed; left: -320px; top: 0; width: 300px; height: 100%; background: var(--white); z-index: 2500; transition: 0.4s; display: flex; flex-direction: column; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { background: var(--primary); padding: 40px 20px 20px; color: white; text-align: center; }
+        .nav-list { padding: 15px; }
+        .nav-item { display: flex; align-items: center; gap: 15px; padding: 14px 20px; border-radius: 12px; color: #333; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 5px; }
+        .nav-item:hover { background: #f0fdf4; color: var(--primary); }
+        .nav-item i { color: var(--primary); width: 20px; text-align: center; }
+
+        /* --- CARDS & FORMS --- */
+        .container { padding: 85px 15px 15px; max-width: 500px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .photo-area { text-align: center; margin-bottom: 20px; position: relative; cursor: pointer; }
+        .profile-img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary); }
+        .cam-badge { position: absolute; bottom: 5px; right: 35%; background: var(--secondary); color: white; padding: 7px; border-radius: 50%; font-size: 10px; }
+        
+        label { display: block; margin: 10px 0 5px; font-weight: bold; color: #555; font-size: 13px; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 16px; margin-bottom: 5px; outline: none; }
+        .btn-main { width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; color: white; font-size: 16px; margin-top: 10px; }
+        
+        /* --- LIST STYLING --- */
+        .customer-row { display: flex; align-items: center; gap: 12px; padding: 12px; border-bottom: 1px solid #eee; }
+        .row-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+        .row-info { flex-grow: 1; }
+        .row-info b { font-size: 15px; color: var(--secondary); display: block; }
+        .row-balance { font-weight: bold; color: #E91E63; }
+
+        /* --- MODAL --- */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 4000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 25px; width: 90%; max-width: 400px; border-radius: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="handleMenu()"></div>
+
+<div class="top-bar">
+    <div class="menu-btn" id="menuBtn" onclick="handleMenu()">
+        <div class="line1"></div><div class="line2"></div><div class="line3"></div>
+    </div>
+    <div style="margin-left: 15px; font-weight: 800; color: var(--primary); letter-spacing: 0.5px;">HI KISHAN</div>
+</div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img src="https://via.placeholder.com/80" id="profile-pic-sidebar" style="border-radius:50%; width:70px;">
+        <h3 id="display-name" class="trans" data-en="Welcome, Shopkeeper" data-ne="स्वागत छ, पसले">Welcome, Shopkeeper</h3>
+    </div>
+    <div class="nav-list">
+        <div class="nav-item" onclick="changeLanguage()">
+            <i class="fas fa-language"></i> <span id="lang-label">Switch to Nepali</span>
+        </div>
+        <a href="shop.html" class="nav-item"><i class="fas fa-store"></i> <span class="trans" data-en="Shop Panel" data-ne="पसल प्यानल">Shop Panel</span></a>
+        <a href="dashboard.html" class="nav-item"><i class="fas fa-th-large"></i> <span class="trans" data-en="Dashboard" data-ne="ड्यासबोर्ड">Dashboard</span></a>
+        <div class="nav-item" style="color:red; margin-top:30px;" onclick="location.href='index.html'"><i class="fas fa-power-off"></i> <span class="trans" data-en="Logout" data-ne="लग आउट">Logout</span></div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h3 class="trans" data-en="New Registration" data-ne="नयाँ दर्ता">New Registration</h3>
+        <div class="photo-area" onclick="document.getElementById('fileInput').click()">
+            <img id="imgPreview" src="https://via.placeholder.com/120?text=Photo" class="profile-img">
+            <div class="cam-badge">📸</div>
+            <input type="file" id="fileInput" accept="image/*" capture="environment" style="display:none" onchange="handleImage(this)">
+        </div>
+
+        <label class="trans" data-en="Customer ID" data-ne="ग्राहक आइडी">Customer ID</label>
+        <input type="number" id="cID" placeholder="ID (e.g. 101)" oninput="checkID()">
+
+        <label class="trans" data-en="Full Name" data-ne="पूरा नाम">Full Name</label>
+        <input type="text" id="cName" placeholder="Name">
+
+        <label class="trans" data-en="Mobile Number" data-ne="मोबाइल नम्बर">Mobile Number</label>
+        <input type="number" id="cPhone" placeholder="Mobile No.">
+
+        <label class="trans" data-en="Address" data-ne="ठेगाना">Address</label>
+        <input type="text" id="cAddress" placeholder="Village">
+
+        <button class="btn-main trans" data-en="SAVE CUSTOMER" data-ne="ग्राहक बचत गर्नुहोस्" style="background:var(--primary)" onclick="saveData()">SAVE CUSTOMER</button>
+    </div>
+
+    <div class="card">
+        <h3 style="display:flex; justify-content:space-between">
+            <span class="trans" data-en="Customer List" data-ne="ग्राहक सूची">Customer List</span>
+            <span id="countDisplay" style="font-size: 14px; color: gray;"></span>
+        </h3>
+        <input type="text" id="searchInput" placeholder="🔍 Search Name or ID..." onkeyup="resetAndRefresh()">
+        <div id="listContainer"></div>
+        <button id="loadMoreBtn" class="btn-main trans" data-en="SHOW MORE" data-ne="थप देखाउनुहोस्" style="background:white; color:var(--primary); border:2px solid var(--primary); display:none;" onclick="showMore()">SHOW MORE</button>
+    </div>
+</div>
+
+<script>
+    let customers = JSON.parse(localStorage.getItem('kishan_customers') || '[]');
+    let currentPhoto = "", limit = 10, currentLang = localStorage.getItem('hk_lang') || 'en';
+
+    // --- MENU & LANGUAGE ---
+    function handleMenu() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('show');
+        document.getElementById('menuBtn').classList.toggle('is-active');
+    }
+
+    function changeLanguage() {
+        currentLang = (currentLang === 'en') ? 'ne' : 'en';
+        localStorage.setItem('hk_lang', currentLang);
+        applyLanguage();
+    }
+
+    function applyLanguage() {
+        document.querySelectorAll('.trans').forEach(el => el.innerText = el.getAttribute('data-' + currentLang));
+        document.getElementById('lang-label').innerText = (currentLang === 'en') ? "Switch to Nepali" : "English मा जानुहोस्";
+    }
+
+    // --- IMAGE HANDLING ---
+    function handleImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 300; canvas.height = 300;
+                    canvas.getContext('2d').drawImage(img, 0, 0, 300, 300);
+                    currentPhoto = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('imgPreview').src = currentPhoto;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // --- CUSTOMER LOGIC ---
+    function checkID() {
+        const found = customers.find(c => c.id == document.getElementById('cID').value);
+        if (found) {
+            document.getElementById('cName').value = found.name;
+            document.getElementById('cPhone').value = found.phone;
+            document.getElementById('cAddress').value = found.address;
+            document.getElementById('imgPreview').src = found.photo || "https://via.placeholder.com/120";
+            currentPhoto = found.photo;
+        }
+    }
+
+    function saveData() {
+        const id = document.getElementById('cID').value, name = document.getElementById('cName').value.trim().toUpperCase();
+        if(!id || !name) return alert("ID and Name required!");
+
+        const customer = { id, name, phone: document.getElementById('cPhone').value, address: document.getElementById('cAddress').value, photo: currentPhoto, balance: 0 };
+        const idx = customers.findIndex(c => c.id == id);
+        
+        if(idx > -1) { customer.balance = customers[idx].balance; customers[idx] = customer; }
+        else customers.push(customer);
+
+        localStorage.setItem('kishan_customers', JSON.stringify(customers));
+        alert("Saved!");
+        location.reload();
+    }
+
+    function resetAndRefresh() { limit = 10; renderList(); }
+    function showMore() { limit += 10; renderList(); }
+
+    function renderList() {
+        const q = document.getElementById('searchInput').value.toUpperCase();
+        const filtered = customers.filter(c => c.name.includes(q) || c.id.toString().includes(q));
+        const visible = filtered.slice(0, limit);
+        
+        document.getElementById('countDisplay').innerText = `(${filtered.length})`;
+        document.getElementById('listContainer').innerHTML = visible.map((c, i) => `
+            <div class="customer-row">
+                <img src="${c.photo || 'https://via.placeholder.com/50'}" class="row-img">
+                <div class="row-info"><b>${c.name}</b><span>ID: ${c.id} | ${c.phone}</span></div>
+                <div class="row-balance">₹${c.balance}</div>
+            </div>`).join('');
+        
+        document.getElementById('loadMoreBtn').style.display = filtered.length > limit ? "block" : "none";
+    }
+
+    window.onload = () => {
+        applyLanguage(); renderList();
+        if(localStorage.getItem('hk_shop_name')) document.getElementById('display-name').innerText = localStorage.getItem('hk_shop_name');
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hi Kishan Pro | Crop Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #2e7d32; --secondary: #1a365d; --bg: #f8fafc; --white: #ffffff; }
+        
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; overflow-x: hidden; }
+
+        /* --- UNIFIED TOP BAR --- */
+        .top-bar {
+            position: fixed; top: 0; width: 100%; height: 65px;
+            background: var(--white); display: flex; align-items: center; padding: 0 20px;
+            z-index: 3000; box-shadow: 0 2px 15px rgba(0,0,0,0.08); box-sizing: border-box;
+        }
+
+        /* --- ANIMATED MENU BUTTON (X Toggle) --- */
+        .menu-btn { cursor: pointer; width: 30px; height: 22px; display: flex; flex-direction: column; justify-content: space-between; z-index: 3100; }
+        .menu-btn div { width: 100%; height: 3.5px; background: var(--secondary); border-radius: 5px; transition: 0.3s; transform-origin: left center; }
+        .menu-btn.is-active .line1 { transform: rotate(45deg); background: var(--primary); }
+        .menu-btn.is-active .line2 { opacity: 0; }
+        .menu-btn.is-active .line3 { transform: rotate(-45deg); background: var(--primary); }
+
+        /* --- SIDEBAR & OVERLAY --- */
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; opacity: 0; transition: 0.3s; }
+        .overlay.show { display: block; opacity: 1; }
+
+        .sidebar { 
+            position: fixed; left: -320px; top: 0; width: 300px; height: 100%; 
+            background: var(--white); z-index: 2500; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            display: flex; flex-direction: column;
+        }
+        .sidebar.active { left: 0; }
+        .sidebar-header { background: var(--primary); padding: 40px 20px 20px; color: white; text-align: center; }
+        #profile-pic-sidebar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; object-fit: cover; margin-bottom: 10px; }
+
+        .nav-list { padding: 15px; flex-grow: 1; }
+        .nav-item { display: flex; align-items: center; gap: 15px; padding: 14px 20px; border-radius: 12px; color: #333; text-decoration: none; font-weight: 600; cursor: pointer; margin-bottom: 5px; }
+        .nav-item:hover { background: #f0fdf4; color: var(--primary); }
+        .nav-item i { color: var(--primary); width: 20px; text-align: center; }
+
+        /* --- MAIN CONTENT & UI --- */
+        .main-content { padding: 85px 15px 20px; max-width: 1200px; margin: auto; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 15px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); border-left: 4px solid var(--primary); }
+        .stat-card h4 { margin: 0; color: #777; font-size: 10px; text-transform: uppercase; }
+        .stat-card p { margin: 5px 0 0; font-size: 15px; font-weight: 800; color: var(--secondary); }
+
+        .toolbar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .search-box { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #ddd; outline: none; }
+        .btn-main { background: var(--primary); color: white; border: none; padding: 12px 18px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+
+        .table-container { background: white; border-radius: 15px; overflow-x: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { background: #f9fafb; padding: 15px; text-align: left; color: #666; font-size: 12px; }
+        td { padding: 15px; border-top: 1px solid #f2f2f2; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="handleMenu()"></div>
+
+<div class="top-bar">
+    <div class="menu-btn" id="menuBtn" onclick="handleMenu()">
+        <div class="line1"></div><div class="line2"></div><div class="line3"></div>
+    </div>
+    <div style="margin-left: 15px; font-weight: 800; color: var(--primary); font-size: 18px;">CROP TRACKER</div>
+</div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img src="https://via.placeholder.com/85" id="profile-pic-sidebar">
+        <h3 id="display-name" style="margin: 5px 0;">Farmer</h3>
+        <p style="font-size: 10px; opacity: 0.8;">PRO ACCOUNT</p>
+    </div>
+    <div class="nav-list">
+        <div class="nav-item" onclick="changeLanguage()">
+            <i class="fas fa-globe"></i> <span id="lang-label">Switch to Nepali</span>
+        </div>
+        <a href="dashboard.html" class="nav-item"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+        <a href="farmer.html" class="nav-item"><i class="fas fa-seedling"></i> <span>Farmer Panel</span></a>
+        <div class="nav-item" onclick="exportCSV()"><i class="fas fa-download"></i> <span>Export Report</span></div>
+        <div class="nav-item" style="color:red; margin-top:30px;" onclick="location.href='index.html'"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></div>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="stats-grid">
+        <div class="stat-card"><h4>Invested</h4><p id="totalInv">₹0</p></div>
+        <div class="stat-card"><h4>Earned</h4><p id="totalEarn">₹0</p></div>
+        <div class="stat-card"><h4>Net Profit</h4><p id="totalNet">₹0</p></div>
+    </div>
+
+    <div class="toolbar">
+        <input type="text" id="search" class="search-box" placeholder="🔍 Search records..." onkeyup="render()">
+        <button class="btn-main" onclick="alert('Open your Add Modal here!')"><i class="fas fa-plus"></i></button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>S.N.</th><th>Date</th><th>Crop Name</th><th>Area</th><th>Invested</th><th>Sales</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+   // 1. Update the database key name
+let db = JSON.parse(localStorage.getItem('hk_crop_data') || '[]');
+
+function saveToDB() {
+    const crop = {
+        id: Date.now(),
+        date: document.getElementById('cropDate').value,
+        name: document.getElementById('cropName').value,
+        area: document.getElementById('cropArea').value,
+        totalInvest: totalInvest,
+        totalSale: totalSale,
+        investments: investments,
+        sales: sales
+    };
+    db.push(crop);
+    // 2. Use the new key name here too
+    localStorage.setItem('hk_crop_data', JSON.stringify(db));
+    alert("Crop Data Saved Successfully!");
+    location.reload();
+}
+
+function deleteRow(idx) {
+    if(confirm("Delete this record?")) { 
+        db.splice(idx, 1); 
+        // 3. And here
+        localStorage.setItem('hk_crop_data', JSON.stringify(db)); 
+        render(); 
+    }
+}
+</script>
+
+</body>
+</html>

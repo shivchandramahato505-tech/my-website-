@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hi Kishan | Shopkeeper</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root { --primary: #4CAF50; --secondary: #1A365D; --bg: #f8fafc; --white: #ffffff; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; overflow-x: hidden; }
+
+    /* --- TOP BAR --- */
+    .top-bar {
+      position: fixed; top: 0; width: 100%; height: 70px;
+      background: var(--white); display: flex; align-items: center; padding: 0 20px;
+      z-index: 3000; box-shadow: 0 2px 15px rgba(0,0,0,0.08); box-sizing: border-box;
+    }
+
+    /* --- MENU BUTTON --- */
+    .menu-btn { cursor: pointer; width: 30px; height: 22px; display: flex; flex-direction: column; justify-content: space-between; z-index: 3100; }
+    .menu-btn div { width: 100%; height: 3.5px; background: var(--secondary); border-radius: 5px; transition: 0.3s; transform-origin: left center; }
+    .is-active .line1 { transform: rotate(45deg); background: var(--primary); }
+    .is-active .line2 { opacity: 0; }
+    .is-active .line3 { transform: rotate(-45deg); background: var(--primary); }
+
+    /* --- SIDEBAR --- */
+    .sidebar { position: fixed; left: -320px; top: 0; width: 300px; height: 100%; background: var(--white); z-index: 2500; transition: 0.4s; display: flex; flex-direction: column; }
+    .sidebar.active { left: 0; }
+    .sidebar-header { background: var(--primary); padding: 40px 20px 20px; color: white; text-align: center; }
+    #profile-pic-display { width: 80px; height: 80px; border-radius: 50%; border: 3px solid white; object-fit: cover; }
+
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: none; opacity: 0; transition: 0.3s; }
+    .overlay.show { display: block; opacity: 1; }
+
+    .nav-list { padding: 15px; }
+    .nav-item { display: flex; align-items: center; gap: 15px; padding: 14px 20px; border-radius: 12px; color: #333; text-decoration: none; font-weight: 600; cursor: pointer; }
+    .nav-item:hover { background: #f0fdf4; color: var(--primary); }
+    .nav-item i { color: var(--primary); width: 20px; text-align: center; }
+
+    /* --- MODAL --- */
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 4000; display: none; align-items: center; justify-content: center; }
+    .modal-content { background: white; padding: 25px; width: 90%; max-width: 400px; border-radius: 20px; }
+    input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+
+    /* --- CARDS --- */
+    .container { padding: 100px 20px 40px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+    .card { background: white; padding: 25px; width: 100%; max-width: 340px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; }
+    .btn-green { display: block; width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="overlay" id="overlay" onclick="handleMenu()"></div>
+
+  <div class="top-bar">
+    <div class="menu-btn" id="menuBtn" onclick="handleMenu()">
+      <div class="line1"></div><div class="line2"></div><div class="line3"></div>
+    </div>
+    <div style="margin-left: 20px; font-weight: 800; color: var(--primary); font-size: 20px;">HI KISHAN</div>
+  </div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <img src="https://via.placeholder.com/80" id="profile-pic-display">
+      <h3 id="display-name" class="trans" data-en="Welcome, Shopkeeper" data-ne="स्वागत छ, पसले">Welcome, Shopkeeper</h3>
+      <button onclick="openModal()" style="background:rgba(255,255,255,0.2); border:1px solid white; color:white; border-radius:8px; padding:5px 12px; cursor:pointer;">Edit Profile</button>
+    </div>
+
+    <div class="nav-list">
+      <div class="nav-item" onclick="changeLanguage()">
+        <i class="fas fa-language"></i> <span id="lang-label">Switch to Nepali</span>
+      </div>
+      <a href="shop-stock.html" class="nav-item"><i class="fas fa-boxes-stacked"></i> <span class="trans" data-en="Manage Stock" data-ne="स्टक व्यवस्थापन">Manage Stock</span></a>
+      <a href="shop-profit-loss.html" class="nav-item"><i class="fas fa-chart-line"></i> <span class="trans" data-en="Profit Reports" data-ne="नाफा रिपोर्ट">Profit Reports</span></a>
+      <a href="shop-customers.html" class="nav-item"><i class="fas fa-users"></i> <span class="trans" data-en="Customer Details" data-ne="ग्राहक विवरण">Customer Details</span></a>
+      <a href="tel:9840109517" class="nav-item"><i class="fas fa-phone-alt"></i> <span>9840109517</span></a>
+      <div class="nav-item" style="color:red; margin-top:20px;" onclick="location.href='index.html'"><i class="fas fa-power-off"></i> <span>Logout</span></div>
+    </div>
+  </div>
+
+  <div class="modal" id="pMod">
+    <div class="modal-content">
+      <h3>Edit Profile</h3>
+      <input type="text" id="inName" placeholder="Enter Name">
+      <button class="btn-green" onclick="saveProfile()">Save</button>
+      <button onclick="closeModal()" style="width:100%; background:none; border:none; color:grey; margin-top:10px;">Cancel</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="card">
+      <h3 class="trans" data-en="Stock Management" data-ne="स्टक व्यवस्थापन">Stock Management</h3>
+      <p>Check & update your products stock.</p>
+      <button class="btn-green" onclick="location.href='shop-stock.html'">Manage Stock</button>
+    </div>
+
+    <div class="card">
+      <h3 class="trans" data-en="Profit & Loss" data-ne="नाफा र नोक्सान">Profit & Loss</h3>
+      <p>View detailed shop earnings.</p>
+      <button class="btn-green" onclick="location.href='shop-profit-loss.html'">Check Profit</button>
+    </div>
+
+    <div class="card">
+      <h3 class="trans" data-en="Customer Details" data-ne="ग्राहक विवरण">Customer Details</h3>
+      <p>Track payments and contact info.</p>
+      <button class="btn-green" onclick="location.href='shop-customers.html'">Check Customers</button>
+    </div>
+  </div>
+
+  <script>
+    let currentLang = 'en';
+
+    function handleMenu() {
+      document.getElementById('sidebar').classList.toggle('active');
+      document.getElementById('overlay').classList.toggle('show');
+      document.getElementById('menuBtn').classList.toggle('is-active');
+    }
+
+    function openModal() { document.getElementById('pMod').style.display = 'flex'; }
+    function closeModal() { document.getElementById('pMod').style.display = 'none'; }
+
+    function saveProfile() {
+      const n = document.getElementById('inName').value;
+      if(n) {
+        document.getElementById('display-name').innerText = n;
+        localStorage.setItem('hk_shop_name', n);
+      }
+      closeModal();
+    }
+
+    function changeLanguage() {
+      const elements = document.querySelectorAll('.trans');
+      const label = document.getElementById('lang-label');
+      currentLang = (currentLang === 'en') ? 'ne' : 'en';
+      
+      elements.forEach(el => {
+        el.innerText = el.getAttribute('data-' + currentLang);
+      });
+
+      label.innerText = (currentLang === 'en') ? "Switch to Nepali" : "English मा जानुहोस्";
+    }
+
+    window.onload = () => {
+      const name = localStorage.getItem('hk_shop_name');
+      if(name) document.getElementById('display-name').innerText = name;
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hi Kishan | Plant Doctor AI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2e7d32;
+      --secondary: #1a365d;
+      --bg: #f0f4f8;
+      --white: #ffffff;
+      --text: #333;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', Arial, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      color: var(--text);
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 18px 20px;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    }
+
+    .main-content {
+      padding: 20px;
+      max-width: 650px;
+      margin: auto;
+    }
+
+    .scanner-card {
+      background: white;
+      padding: 20px;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      border: 1px solid #edf2ed;
+    }
+
+    .camera-box {
+      width: 100%;
+      height: 320px;
+      background: #111;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      border: 4px solid #fff;
+    }
+
+    #image-preview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    #prompt {
+      color: white;
+      text-align: center;
+      padding: 20px;
+      line-height: 1.8;
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .btn-scan {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 15px;
+      font-weight: bold;
+      width: 100%;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    .btn-scan:hover {
+      background: #1b5e20;
+    }
+
+    .btn-secondary {
+      background: var(--secondary);
+    }
+
+    .btn-secondary:hover {
+      background: #122845;
+    }
+
+    .btn-light {
+      background: #eef6ff;
+      color: var(--secondary);
+      border: 1px solid #d8e6f7;
+    }
+
+    .btn-light:hover {
+      background: #e3f0ff;
+    }
+
+    #loader {
+      display: none;
+      color: var(--primary);
+      margin-top: 12px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .report-card {
+      background: white;
+      border-left: 6px solid var(--primary);
+      padding: 18px;
+      border-radius: 15px;
+      margin-top: 20px;
+      text-align: left;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      line-height: 1.8;
+      white-space: pre-wrap;
+    }
+
+    .helper {
+      margin-top: 10px;
+      color: #64748b;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .status-note {
+      margin-top: 12px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1px solid #e5edf5;
+      border-radius: 12px;
+      color: #334155;
+      font-size: 14px;
+    }
+
+    .hidden-input {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .btn-row {
+        grid-template-columns: 1fr;
+      }
+
+      .camera-box {
+        height: 270px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>Hi Kishan 🌾 | Plant Doctor AI</header>
+
+  <div class="main-content">
+    <div class="scanner-card">
+      <div class="camera-box">
+        <img id="image-preview" alt="Plant Preview">
+        <div id="prompt">
+          <i class="fas fa-leaf" style="font-size: 50px; color: #4ade80; margin-bottom: 10px;"></i><br>
+          <b>Take plant photo or choose from gallery</b><br>
+          Upload leaf or crop image for disease check
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-scan" onclick="openCamera()">
+          <i class="fas fa-camera"></i> Take Photo
+        </button>
+
+        <button class="btn-scan btn-light" onclick="openGallery()">
+          <i class="fas fa-image"></i> Choose from Gallery
+        </button>
+      </div>
+
+      <button class="btn-scan btn-secondary" onclick="analyzeSelectedImage()">
+        <i class="fas fa-stethoscope"></i> Analyze Plant
+      </button>
+
+      <input
+        type="file"
+        id="cameraInput"
+        class="hidden-input"
+        accept="image/*"
+        capture="environment"
+        onchange="handleFileSelect(this)"
+      >
+
+      <input
+        type="file"
+        id="galleryInput"
+        class="hidden-input"
+        accept="image/*"
+        onchange="handleFileSelect(this)"
+      >
+
+      <div id="loader">
+        <i class="fas fa-spinner fa-spin"></i> Analyzing plant health...
+      </div>
+
+      <div class="helper">
+        On mobile, <b>Take Photo</b> opens camera. <b>Choose from Gallery</b> opens photos.
+      </div>
+
+      <div class="status-note" id="statusBox">
+        No image selected yet.
+      </div>
+    </div>
+
+    <div id="result-area"></div>
+
+    <button class="btn-scan btn-secondary" style="margin-top: 20px;" onclick="location.href='farmer.html'">
+      Return to Farmer Panel
+    </button>
+  </div>
+
+  <script>
+    // Paste your real Gemini API key here
+    const API_KEY = "AIzaSyCTXg96Ur0GrhIA84JaPEcxrg_Znic3MSI";
+
+    // Paste the same working Gemini model name you are already using
+    const MODEL_NAME = "gemini-2.5-flash";
+
+    let selectedFile = null;
+
+    function setStatus(message) {
+      document.getElementById("statusBox").innerText = message;
+    }
+
+    function openCamera() {
+      document.getElementById("cameraInput").click();
+    }
+
+    function openGallery() {
+      document.getElementById("galleryInput").click();
+    }
+
+    function handleFileSelect(input) {
+      if (!input.files || !input.files[0]) return;
+
+      selectedFile = input.files[0];
+
+      const preview = document.getElementById("image-preview");
+      const prompt = document.getElementById("prompt");
+
+      preview.src = URL.createObjectURL(selectedFile);
+      preview.style.display = "block";
+      prompt.style.display = "none";
+
+      setStatus("Image selected: " + selectedFile.name);
+      document.getElementById("result-area").innerHTML = "";
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result.split(",")[1];
+          resolve(result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function analyzeSelectedImage() {
+      const loader = document.getElementById("loader");
+      const resultArea = document.getElementById("result-area");
+
+      if (!selectedFile) {
+        alert("Please take photo or choose image first.");
+        return;
+      }
+
+      if (API_KEY === "PASTE_YOUR_GEMINI_API_KEY_HERE") {
+        alert("Please paste your Gemini API key first.");
+        return;
+      }
+
+      loader.style.display = "block";
+      resultArea.innerHTML = "";
+      setStatus("Analyzing plant image...");
+
+      try {
+        const base64Data = await fileToBase64(selectedFile);
+        const mimeType = selectedFile.type || "image/jpeg";
+
+        const promptText = `
+Analyze this plant or crop image and write in very simple farmer language.
+
+Give answer in this format:
+
+Plant Name:
+Nepali Name:
+Disease Name:
+Disease Type:
+Symptoms:
+Possible Cause:
+Recommended Medicine:
+How to Use Medicine:
+Organic Remedy:
+Prevention Tips:
+Urgent Advice:
+
+Write in English first, then Nepali.
+If the plant looks healthy, clearly say plant looks healthy.
+`;
+
+        const url =
+          "https://generativelanguage.googleapis.com/v1beta/models/" +
+          MODEL_NAME +
+          ":generateContent?key=" +
+          API_KEY;
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  { text: promptText },
+                  {
+                    inline_data: {
+                      mime_type: mimeType,
+                      data: base64Data
+                    }
+                  }
+                ]
+              }
+            ]
+          })
+        });
+
+        const data = await response.json();
+        console.log("Gemini response:", data);
+
+        if (data.error) {
+          resultArea.innerHTML = `
+            <div class="report-card">
+              <b>Error:</b> ${data.error.message}
+            </div>
+          `;
+          setStatus("API error found.");
+          return;
+        }
+
+        const aiText =
+          data.candidates &&
+          data.candidates[0] &&
+          data.candidates[0].content &&
+          data.candidates[0].content.parts &&
+          data.candidates[0].content.parts[0] &&
+          data.candidates[0].content.parts[0].text
+            ? data.candidates[0].content.parts[0].text
+            : "No result returned.";
+
+        resultArea.innerHTML = `
+          <div class="report-card">
+            ${escapeHtml(aiText).replace(/\n/g, "<br>")}
+          </div>
+        `;
+
+        setStatus("Plant analysis completed.");
+      } catch (err) {
+        console.error(err);
+        resultArea.innerHTML = `
+          <div class="report-card">
+            <b>Connection Error:</b> Please try again.
+          </div>
+        `;
+        setStatus("Request failed.");
+      } finally {
+        loader.style.display = "none";
+      }
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>
